@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "FlightLightSwitches",
+			"path": "../../LightSwitches/FlightLightSwitches"
+		}
+	],
+	"settings": {}
+}

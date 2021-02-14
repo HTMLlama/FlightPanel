@@ -6,7 +6,7 @@
 
 const byte ROWS = 4; // rows
 const byte COLS = 3; // columns
-const byte KEY_PINS = 5;
+const byte KEY_PINS_COUNT = 5;
 //define the symbols on the buttons of the keypads
 char keypadKeys[ROWS][COLS] = {
   {'1','2','3'},
@@ -21,19 +21,30 @@ Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keypadKeys), rowPins,
 
 Joystick_ Joystick;
 
-int keyPins[KEY_PINS] = {1, 2, 3, 4, 5};
+int keyPins[KEY_PINS_COUNT] = {1, 2, 3, 4, 5};
 
 void readKeypad() {
   keypadEvent e = customKeypad.read();
   if(e.bit.EVENT == KEY_JUST_PRESSED) {
-    BootKeyboard.press(e.bit.KEY);
-    // Serial.println(e.bit.KEY);
-    BootKeyboard.releaseAll();
+    int key = e.bit.KEY;
+    if (key == '*') {
+      Joystick.setButton(KEY_PINS_COUNT + 1, HIGH);
+      delay(50);
+      Joystick.setButton(KEY_PINS_COUNT + 1, LOW);
+    } else if (key == '#') {
+      Joystick.setButton(KEY_PINS_COUNT + 2, HIGH);
+      delay(50);
+      Joystick.setButton(KEY_PINS_COUNT + 2, LOW);
+    }else {
+      BootKeyboard.press(e.bit.KEY);
+      delay(50);
+      BootKeyboard.releaseAll();
+    }
   } 
 }
 
-void readKey() {
-  for (size_t i = 0; i < KEY_PINS; i++) {
+void readKeySwitch() {
+  for (size_t i = 0; i < KEY_PINS_COUNT; i++) {
     Joystick.setButton(i, !digitalRead(keyPins[i]));
   }
 }
@@ -44,15 +55,13 @@ void setup() {
   BootKeyboard.begin();
   Joystick.begin();
 
-  for (size_t i = 0; i < KEY_PINS; i++) {
+  for (size_t i = 0; i < KEY_PINS_COUNT; i++) {
     pinMode(keyPins[i], INPUT_PULLUP);
   }
-  
 }
 
 void loop() {
   customKeypad.tick();
   readKeypad();
-  readKey();
-  delay(5);
+  readKeySwitch();
 }
