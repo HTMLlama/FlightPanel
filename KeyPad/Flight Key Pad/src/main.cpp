@@ -4,9 +4,11 @@
 #include "HID-Project.h"
 #include "Joystick.h"
 
+#define IGNITION_PIN 13
+
 const byte ROWS = 4; // rows
 const byte COLS = 3; // columns
-const byte KEY_PINS_COUNT = 5;
+const byte KEY_PINS_COUNT = 4;
 //define the symbols on the buttons of the keypads
 char keypadKeys[ROWS][COLS] = {
   {'1','2','3'},
@@ -21,7 +23,7 @@ Adafruit_Keypad customKeypad = Adafruit_Keypad( makeKeymap(keypadKeys), rowPins,
 
 Joystick_ Joystick;
 
-int keyPins[KEY_PINS_COUNT] = {1, 2, 3, 4, 5};
+int keyPins[KEY_PINS_COUNT] = {2, 3, 4, 5};
 
 void readKeypad() {
   keypadEvent e = customKeypad.read();
@@ -45,7 +47,13 @@ void readKeypad() {
 
 void readKeySwitch() {
   for (size_t i = 0; i < KEY_PINS_COUNT; i++) {
-    Joystick.setButton(i, !digitalRead(keyPins[i]));
+    if (!digitalRead(IGNITION_PIN)) {
+      Joystick.setButton(i, LOW);
+      Joystick.setButton(KEY_PINS_COUNT, HIGH);
+    } else {
+      Joystick.setButton(i, !digitalRead(keyPins[i]));
+      Joystick.setButton(KEY_PINS_COUNT, LOW);
+    }
   }
 }
 
@@ -58,6 +66,8 @@ void setup() {
   for (size_t i = 0; i < KEY_PINS_COUNT; i++) {
     pinMode(keyPins[i], INPUT_PULLUP);
   }
+
+  pinMode(IGNITION_PIN, INPUT_PULLUP);
 }
 
 void loop() {
